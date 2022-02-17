@@ -1,13 +1,19 @@
+#-*- coding: utf-8 -*-  
 import filecmp
 import difflib
 import pprint
 import os,sys
-import chardet
+import chardet #pip install chardet
 import logging
 import csv
+import time
+seconds = time.time()
+
+genfilename=time.strftime("result_%Y-%m-%d_%H_%M_%S", time.localtime(seconds))
+
 logger = logging.getLogger(__name__)
 logger.setLevel(level = logging.INFO)
-handler = logging.FileHandler("result4.log")
+handler = logging.FileHandler(genfilename+".log")
 handler.setLevel(logging.INFO)
 
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -20,11 +26,11 @@ logger.addHandler(handler)
 logger.addHandler(console)
 
 
-path1="D:\\1\\V3.8-2021-01\\"
-path2="D:\\4\\20210129\\"
+path1="C:\\Users\\admin\Documents\\3\\sources\\"
+path2="C:\\Users\\admin\Documents\\org\\sources\\"
 
 def writecsvdata(line):
-    with open('result4.csv', 'a+', newline='') as csvfile:
+    with open(genfilename+".csv", 'a+', newline='') as csvfile:
         spamriter = csv.writer(csvfile, dialect='excel')
         line_list = line.strip('\n').split(',') 
         spamriter.writerow(line_list)
@@ -65,7 +71,8 @@ def compareme(dir1,dir2):
 
     dircomp = filecmp.dircmp(dir1,dir2)
     only_in_one = dircomp.left_only      
-    diff_in_one = dircomp.diff_files    
+    diff_in_one = dircomp.diff_files   
+
     dirpath = os.path.abspath(dir1)     
     if(len(diff_in_one)>0):
         for x in diff_in_one:
@@ -73,11 +80,11 @@ def compareme(dir1,dir2):
                 holderlist.append(diffsubdir+"\\"+x)
             else:
                 holderlist.append(x)
-        print(holderlist)
-        if len(dircomp.common_dirs) > 0:  #判断是否存在相同子目录，以便递归
+        #print(holderlist)  
+    if len(dircomp.common_dirs) > 0:  #判断是否存在相同子目录，以便递归
             for item in dircomp.common_dirs:   #递归子目录
                 compareme(os.path.abspath(os.path.join(dir1,item)),os.path.abspath(os.path.join(dir2,item)))
-        return holderlist
+    return holderlist
 
 compareme(path1,path2)
 #holderlist.sort()
